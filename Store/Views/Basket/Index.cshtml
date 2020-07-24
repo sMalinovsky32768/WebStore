@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Store.Models.Basket>
+
+@{
+    ViewData["Title"] = "Basket";
+    int uid = (int)ViewData["UserID"];
+}
+
+<h1>Goods</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Good.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Good.Articul)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Good.Value)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Good.GoodType.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Good.Producer.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Good.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Good.Articul)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Good.Value)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Good.GoodType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Good.Producer.Name)
+                </td>
+                <td>
+                    @*<form asp-action="Add" asp-controller="Basket" asp-antiforgery="true">
+                        <input type="hidden" value="@uid" name="userid" />
+                        <input type="hidden" value="@uid" name="goodid" />
+                        <div class="row">
+                            <div class="form-group col-8 row">
+                                <label for="count" class="col-sm-2 col-form-label">Count</label>
+                                <div class="col-sm-10">
+                                    <input type="number" class="form-control" name="count" placeholder="Count">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mb-2 col-4">Add to cart</button>
+                        </div>
+                    </form>*@
+                    <form asp-controller="Basket" asp-antiforgery="true">
+                        <div class="row">
+                            <button type="submit" class="btn btn-primary mb-2 col-4" asp-action="MinusCount">-</button>
+                            <input type="hidden" value="@item.ID" name="basketid" />
+                            <input type="number" class="form-control col-4" value="@item.GoodCount" disabled />
+                            <button type="submit" class="btn btn-primary mb-2 col-4" asp-action="PlusCount">+</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
