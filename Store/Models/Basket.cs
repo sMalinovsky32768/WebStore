@@ -7,6 +7,8 @@ namespace Store.Models
 {
     public class Basket
     {
+        public bool isSelected;
+
         public int ID { get; set; }
 
         [Required]
@@ -23,17 +25,5 @@ namespace Store.Models
 
         [Required]
         public int GoodCount { get; set; } = 1;
-
-        public bool IsPlaced => GetIsPlaced();
-
-        private bool GetIsPlaced([FromServices]DbContext context = null)
-        {
-            if (context is ApplicationContext _context)
-            {
-                Order order = _context.Orders.FirstOrDefault(order => order.BasketID == ID);
-                return order != null;
-            }
-            return false;
-        }
     }
 }

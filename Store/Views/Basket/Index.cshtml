@@ -7,9 +7,12 @@
 
 <h1>Goods</h1>
 
+<form asp-action="PlaceOrder" asp-controller="Basket" asp-antiforgery="true" id="placeOrder" method="post"></form>
+
 <table class="table">
     <thead>
         <tr>
+            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Good.Name)
             </th>
@@ -26,12 +29,23 @@
                 @Html.DisplayNameFor(model => model.Good.Producer.Name)
             </th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    <input name="@item.ID" type="checkbox" form="placeOrder" />
+                    @*<input asp-for="@item.isSelected" form="placeOrder" />
+                    <input asp-for="@item.Good" type="hidden" form="placeOrder" />
+                    <input asp-for="@item.GoodCount" type="hidden" form="placeOrder" />
+                    <input asp-for="@item.GoodID" type="hidden" form="placeOrder" />
+                    <input asp-for="@item.ID" type="hidden" form="placeOrder" />
+                    <input asp-for="@item.User" type="hidden" form="placeOrder" />
+                    <input asp-for="@item.UserID" type="hidden" form="placeOrder" />*@
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Good.Name)
                 </td>
@@ -48,25 +62,20 @@
                     @Html.DisplayFor(modelItem => item.Good.Producer.Name)
                 </td>
                 <td>
-                    @*<form asp-action="Add" asp-controller="Basket" asp-antiforgery="true">
-                        <input type="hidden" value="@uid" name="userid" />
-                        <input type="hidden" value="@uid" name="goodid" />
-                        <div class="row">
-                            <div class="form-group col-8 row">
-                                <label for="count" class="col-sm-2 col-form-label">Count</label>
-                                <div class="col-sm-10">
-                                    <input type="number" class="form-control" name="count" placeholder="Count">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary mb-2 col-4">Add to cart</button>
-                        </div>
-                    </form>*@
                     <form asp-controller="Basket" asp-antiforgery="true">
                         <div class="row">
                             <button type="submit" class="btn btn-primary mb-2 col-4" asp-action="MinusCount">-</button>
-                            <input type="hidden" value="@item.ID" name="basketid" />
+                            <input type="hidden" value="@item.ID" name="id" />
                             <input type="number" class="form-control col-4" value="@item.GoodCount" disabled />
                             <button type="submit" class="btn btn-primary mb-2 col-4" asp-action="PlusCount">+</button>
+                        </div>
+                    </form>
+                </td>
+                <td>
+                    <form asp-action="Delete" asp-controller="Basket" asp-antiforgery="true">
+                        <div class="row">
+                            <input type="hidden" value="@item.ID" name="id" />
+                            <button type="submit" class="btn btn-danger mb-2">Delete</button>
                         </div>
                     </form>
                 </td>
@@ -74,4 +83,9 @@
         }
     </tbody>
 </table>
+
+<div class="row container">
+    <select name="deliveryMethod" asp-items="ViewBag.DeviveryMethods" form="placeOrder" class="col-9"></select>
+    <button type="submit" class="btn btn-primary mb-2 col-3" form="placeOrder">Place Order</button>
+</div>
 

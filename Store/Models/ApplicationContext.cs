@@ -13,6 +13,7 @@ namespace Store.Models
         public DbSet<Order> Orders { get; set; }
         public DbSet<Producer> Producers { get; set; }
         public DbSet<GoodType> GoodTypes { get; set; }
+        public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
         
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
             : base(options)
@@ -25,17 +26,17 @@ namespace Store.Models
             (string adminEmail, string adminPassword) =
                 Security.EncryptUserData("admin@mail.ru", "admin");
 
-            Role adminRole = new Role
+            var adminRole = new Role
             {
                 ID = 1,
                 Name = "admin",
             };
-            Role userRole = new Role
+            var userRole = new Role
             {
                 ID = 2,
                 Name = "user",
             };
-            User adminUser = new User
+            var adminUser = new User
             {
                 ID = 1,
                 Email = adminEmail,
@@ -49,6 +50,24 @@ namespace Store.Models
                 userRole,
             });
             modelBuilder.Entity<User>().HasData(new User[] { adminUser });
+            modelBuilder.Entity<DeliveryMethod>().HasData(new DeliveryMethod[]
+            {
+                new DeliveryMethod
+                {
+                    ID = 1,
+                    Name = "Самовывоз",
+                },
+                new DeliveryMethod
+                {
+                    ID = 2,
+                    Name = "Почта России",
+                },
+                new DeliveryMethod
+                {
+                    ID = 3,
+                    Name = "Курьерская доставка",
+                },
+            });
             base.OnModelCreating(modelBuilder);
         }
 
@@ -62,7 +81,7 @@ namespace Store.Models
             var baskets = Baskets.Include(b => b.Good).Where(b => b.UserID == uid);
             foreach(var item in baskets)
             {
-                if (!item.IsPlaced)
+                if (!GetIsPlaced(item.ID))
                 {
                     count += item.GoodCount;
                     value += item.Good.Value * item.GoodCount;
@@ -93,6 +112,12 @@ namespace Store.Models
                 }
             builder.Append($" на сумму {value:# ##0.00} рублей");
             return builder.ToString();
+        }
+
+        internal bool GetIsPlaced(int ID)
+        {
+            Order order = Orders.FirstOrDefault(o => o.BasketID == ID);
+            return order != null;
         }
     }
 }

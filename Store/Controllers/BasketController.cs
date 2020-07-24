@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Store.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Bson;
-using Store.Models;
 
 namespace Store.Controllers
 {
@@ -27,16 +25,26 @@ namespace Store.Controllers
             int uid = _context.Users.FirstOrDefault(u => u.Email == email).ID;
             ViewData["UserID"] = uid;
             ViewData["BasketString"] = _context.BasketString(uid);
-            var baskets = _context.Baskets.Where(b => b.UserID == uid);
+            var deliveryMethods = _context.DeliveryMethods.ToList();
+            var selectListItems = new List<SelectListItem>();
+            foreach(var item in deliveryMethods)
+            {
+                selectListItems.Add(new SelectListItem
+                {
+                    Value = item.ID.ToString(),
+                    Text = item.Name,
+                });
+            }
+            ViewData["DeviveryMethods"] = selectListItems;
+            var baskets = _context.Baskets.Include(b => b.Good.GoodType).Include(b => b.Good.Producer).Where(b => b.UserID == uid);
             var basketsList = new List<Basket>();
             foreach (var item in baskets)
             {
-                if (!item.IsPlaced)
+                if (!_context.GetIsPlaced(item.ID))
                 {
                     basketsList.Add(item);
                 }
             }
-            //return View(_context.Baskets.Where(b => b.UserID == uid && !b.IsPlaced));
             return View(basketsList);
         }
 
@@ -49,7 +57,7 @@ namespace Store.Controllers
             {
                 foreach (var item in baskets)
                 {
-                    if (!item.IsPlaced)
+                    if (!_context.GetIsPlaced(item.ID))
                     {
                         item.GoodCount += count;
                         break;
@@ -83,9 +91,48 @@ namespace Store.Controllers
         {
             if (_context.Baskets.FirstOrDefault(b => b.ID == id) is Basket basket)
             {
-                basket.GoodCount--;
+                if (basket.GoodCount > 1)
+                {
+                    basket.GoodCount--;
+                    _context.SaveChanges();
+                }
+                else return Delete(id);
+            }
+            return RedirectToAction("Index", "Basket");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            if (_context.Baskets.FirstOrDefault(b => b.ID == id) is Basket basket)
+            {
+                _context.Baskets.Remove(basket);
                 _context.SaveChanges();
             }
+            return RedirectToAction("Index", "Basket");
+        }
+
+        [HttpPost]
+        public IActionResult PlaceOrder()//[Bind("isSelected,ID,Good,GoodID,GoodCount,User,UserID")] IEnumerable<Basket> baskets
+        {
+            string email = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultNameClaimType).Value;
+            int uid = _context.Users.FirstOrDefault(u => u.Email == email).ID;
+            int methodId = int.Parse(Request.Form["deliveryMethod"]);
+            var method = _context.DeliveryMethods.FirstOrDefault(d => d.ID == methodId);
+            foreach (var item in Request.Form.Keys)
+            {
+                if (int.TryParse(item, out int id))
+                {
+                    var basket = _context.Baskets.FirstOrDefault(b => b.ID == id);
+                    _context.Orders.Add(new Order
+                    {
+                        BasketID = id,
+                        Basket = basket,
+                        DeliveryMethod = method,
+                        DeliveryMethodID = methodId,
+                    });
+                }
+            }
+            _context.SaveChanges();
             return RedirectToAction("Index", "Basket");
         }
     }

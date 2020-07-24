@@ -1,19 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Store.Models;
-using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Configuration;
-using System.Data;
-using System.Runtime.CompilerServices;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Store.Controllers
 {
