@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Store.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -18,6 +19,7 @@ namespace Store.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "admin, user")]
         public IActionResult Index()
         {
             ViewData["Role"] = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
@@ -36,33 +38,19 @@ namespace Store.Controllers
                 });
             }
             ViewData["DeviveryMethods"] = selectListItems;
-            var baskets = _context.Baskets.Include(b => b.Good.GoodType).Include(b => b.Good.Producer).Where(b => b.UserID == uid);
-            var basketsList = new List<Basket>();
-            foreach (var item in baskets)
-            {
-                if (!_context.GetIsPlaced(item.ID))
-                {
-                    basketsList.Add(item);
-                }
-            }
-            return View(basketsList);
+            return View(_context.Baskets.Include(b => b.Good)
+                .Include(b => b.Good.Producer).Include(b => b.Good.GoodType).AsEnumerable()
+                .Where(b => b.UserID == uid && !_context.GetIsPlaced(b.ID)));
         }
 
         [Authorize(Roles = "admin, user")]
         public IActionResult Add(int userid, int goodid, int count)
         {
-            var baskets = _context.Baskets.Where(
-                b => b.GoodID == goodid && b.UserID == userid);
-            if (baskets.Count() > 0)
+            if (_context.Baskets.AsEnumerable().FirstOrDefault(
+                b => b.GoodID == goodid && b.UserID == userid && !_context.GetIsPlaced(b.ID))
+                is Basket basket)
             {
-                foreach (var item in baskets)
-                {
-                    if (!_context.GetIsPlaced(item.ID))
-                    {
-                        item.GoodCount += count;
-                        break;
-                    }
-                }
+                basket.GoodCount += count;
             }
             else
             {
@@ -112,7 +100,7 @@ namespace Store.Controllers
         }
 
         [HttpPost]
-        public IActionResult PlaceOrder()//[Bind("isSelected,ID,Good,GoodID,GoodCount,User,UserID")] IEnumerable<Basket> baskets
+        public IActionResult PlaceOrder()
         {
             string email = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultNameClaimType).Value;
             int uid = _context.Users.FirstOrDefault(u => u.Email == email).ID;
@@ -129,6 +117,7 @@ namespace Store.Controllers
                         Basket = basket,
                         DeliveryMethod = method,
                         DeliveryMethodID = methodId,
+                        Date = DateTime.Now,
                     });
                 }
             }

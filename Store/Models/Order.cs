@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Store.Models
 {
@@ -17,5 +18,8 @@ namespace Store.Models
 
         [Required]
         public DeliveryMethod DeliveryMethod { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime Date { get; set; }
     }
 }

@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Store.Models.Order>
+
+@{
+    ViewData["Title"] = "Basket";
+}
+
+<h1>Goods</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Basket.Good.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Basket.Good.Articul)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Basket.Good.Value)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Basket.Good.GoodType.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Basket.Good.Producer.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Basket.GoodCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeliveryMethod.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Basket.Good.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Basket.Good.Articul)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Basket.Good.Value)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Basket.Good.GoodType.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Basket.Good.Producer.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Basket.GoodCount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeliveryMethod.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+

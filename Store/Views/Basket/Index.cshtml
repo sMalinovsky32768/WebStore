@@ -38,13 +38,6 @@
             <tr>
                 <td>
                     <input name="@item.ID" type="checkbox" form="placeOrder" />
-                    @*<input asp-for="@item.isSelected" form="placeOrder" />
-                    <input asp-for="@item.Good" type="hidden" form="placeOrder" />
-                    <input asp-for="@item.GoodCount" type="hidden" form="placeOrder" />
-                    <input asp-for="@item.GoodID" type="hidden" form="placeOrder" />
-                    <input asp-for="@item.ID" type="hidden" form="placeOrder" />
-                    <input asp-for="@item.User" type="hidden" form="placeOrder" />
-                    <input asp-for="@item.UserID" type="hidden" form="placeOrder" />*@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Good.Name)

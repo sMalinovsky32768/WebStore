@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace Store.Models
 {
@@ -24,6 +22,7 @@ namespace Store.Models
         public Good Good { get; set; }
 
         [Required]
+        [DisplayName("Count")]
         public int GoodCount { get; set; } = 1;
     }
 }

@@ -74,18 +74,13 @@ namespace Store.Models
         public string BasketString(int uid)
         {
             var builder = new StringBuilder();
-            //int count = Baskets.Include(b => b.IsPlaced).Count(b => b.UserID == uid && !b.IsPlaced);
-            //decimal value = Baskets.Sum(b => b.UserID == uid && !b.IsPlaced ? b.Good.Value * b.GoodCount : 0m);
             int count = 0;
             decimal value = 0m;
-            var baskets = Baskets.Include(b => b.Good).Where(b => b.UserID == uid);
-            foreach(var item in baskets)
+            var baskets = Baskets.Include(b => b.Good).AsEnumerable().Where(b => b.UserID == uid && !GetIsPlaced(b.ID));
+            foreach (var item in baskets)
             {
-                if (!GetIsPlaced(item.ID))
-                {
-                    count += item.GoodCount;
-                    value += item.Good.Value * item.GoodCount;
-                }
+                count += item.GoodCount;
+                value += item.Good.Value * item.GoodCount;
             }
             builder.Append($"{count}");
             if (count > 10 && count <= 20)
