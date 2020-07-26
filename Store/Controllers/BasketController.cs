@@ -10,6 +10,7 @@ using System.Security.Claims;
 
 namespace Store.Controllers
 {
+    [Authorize]
     public class BasketController : Controller
     {
         private readonly ApplicationContext _context;
@@ -19,14 +20,13 @@ namespace Store.Controllers
             _context = context;
         }
 
-        [Authorize(Roles = "admin, user")]
         public IActionResult Index()
         {
             ViewData["Role"] = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
             string email = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultNameClaimType).Value;
             int uid = _context.Users.FirstOrDefault(u => u.Email == email).ID;
             ViewData["UserID"] = uid;
-            ViewData["BasketString"] = _context.BasketString(uid);
+            ViewData["BasketString"] = _context.GetBasketString(uid);
             var deliveryMethods = _context.DeliveryMethods.ToList();
             var selectListItems = new List<SelectListItem>();
             foreach(var item in deliveryMethods)
@@ -43,7 +43,7 @@ namespace Store.Controllers
                 .Where(b => b.UserID == uid && !_context.GetIsPlaced(b.ID)));
         }
 
-        [Authorize(Roles = "admin, user")]
+        [HttpPost]
         public IActionResult Add(int userid, int goodid, int count)
         {
             if (_context.Baskets.AsEnumerable().FirstOrDefault(
@@ -65,9 +65,10 @@ namespace Store.Controllers
             return RedirectToAction("Index", "Goods");
         }
 
+        [HttpPost]
         public IActionResult PlusCount(int id)
         {
-            if (_context.Baskets.FirstOrDefault(b => b.ID == id) is Basket basket)
+            if (_context.Baskets.Find(id) is Basket basket)
             {
                 basket.GoodCount++;
                 _context.SaveChanges();
@@ -75,9 +76,10 @@ namespace Store.Controllers
             return RedirectToAction("Index", "Basket");
         }
 
+        [HttpPost]
         public IActionResult MinusCount(int id)
         {
-            if (_context.Baskets.FirstOrDefault(b => b.ID == id) is Basket basket)
+            if (_context.Baskets.Find(id) is Basket basket)
             {
                 if (basket.GoodCount > 1)
                 {
@@ -89,9 +91,10 @@ namespace Store.Controllers
             return RedirectToAction("Index", "Basket");
         }
 
+        [HttpPost]
         public IActionResult Delete(int id)
         {
-            if (_context.Baskets.FirstOrDefault(b => b.ID == id) is Basket basket)
+            if (_context.Baskets.Find(id) is Basket basket)
             {
                 _context.Baskets.Remove(basket);
                 _context.SaveChanges();
@@ -105,12 +108,12 @@ namespace Store.Controllers
             string email = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultNameClaimType).Value;
             int uid = _context.Users.FirstOrDefault(u => u.Email == email).ID;
             int methodId = int.Parse(Request.Form["deliveryMethod"]);
-            var method = _context.DeliveryMethods.FirstOrDefault(d => d.ID == methodId);
+            var method = _context.DeliveryMethods.Find(methodId);
             foreach (var item in Request.Form.Keys)
             {
                 if (int.TryParse(item, out int id))
                 {
-                    var basket = _context.Baskets.FirstOrDefault(b => b.ID == id);
+                    var basket = _context.Baskets.Find(id);
                     _context.Orders.Add(new Order
                     {
                         BasketID = id,

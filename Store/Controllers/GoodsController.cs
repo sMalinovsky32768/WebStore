@@ -20,18 +20,19 @@ namespace Store.Controllers
             _context = context;
         }
 
-        [Authorize(Roles = "admin, user")]
         public async Task<IActionResult> Index()
         {
-            ViewData["Role"] = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType).Value;
-            string email = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultNameClaimType).Value;
-            int uid = _context.Users.FirstOrDefault(u => u.Email == email).ID;
+            ViewData["Role"] = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+            string email = User.FindFirst(x => x.Type == ClaimsIdentity.DefaultNameClaimType)?.Value;
+            int uid = _context.Users.FirstOrDefault(u => u.Email == email)?.ID ?? default;
             ViewData["UserID"] = uid;
-            ViewData["BasketString"] = _context.BasketString(uid);
-            return View(await _context.Goods.Include(g => g.GoodType).Include(g => g.Producer).ToListAsync());
+            if (uid != default)
+                ViewData["BasketString"] = _context.GetBasketString(uid);
+            return View(await _context.Goods.Include(g => g.GoodType).Include(g => g.Producer).AsNoTracking().ToListAsync());
         }
 
         [Authorize(Roles = "admin")]
+        [HttpPost]
         public IActionResult Import(IFormFile importFile)
         {
             if (importFile != null)
@@ -66,12 +67,10 @@ namespace Store.Controllers
                         if (producer is null)
                         {
                             _context.Producers.Add(item.Producer);
-                            _context.SaveChanges();
                         }
                         if (goodType is null)
                         {
                             _context.GoodTypes.Add(item.GoodType);
-                            _context.SaveChanges();
                         }
                         item.ProducerID = _context.Producers.FirstOrDefault(
                             p => p.Name == item.Producer.Name && p.Code == item.Producer.Code).ID;

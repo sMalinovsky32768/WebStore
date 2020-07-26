@@ -56,7 +56,7 @@ namespace Store
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Goods}/{action=Index}/{userid?}");
+                    pattern: "{controller=Goods}/{action=Index}");
             });
         }
     }

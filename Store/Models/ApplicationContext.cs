@@ -71,7 +71,7 @@ namespace Store.Models
             base.OnModelCreating(modelBuilder);
         }
 
-        public string BasketString(int uid)
+        public string GetBasketString(int uid)
         {
             var builder = new StringBuilder();
             int count = 0;

@@ -30,9 +30,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="container">
-                <a class="btn btn-warning ml-auto" role="button" asp-controller="Basket" asp-action="Index">@ViewData["BasketString"]</a>
-            </div>
+            @{
+                if (!string.IsNullOrWhiteSpace((string)ViewData["BasketString"]))
+                {
+                    <div class="container">
+                        <a class="btn btn-warning ml-auto" role="button" asp-controller="Basket" asp-action="Index">@ViewData["BasketString"]</a>
+                    </div>
+                }
+            }
         </nav>
     </header>
     <div class="container">

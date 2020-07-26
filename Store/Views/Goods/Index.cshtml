@@ -8,7 +8,7 @@
 <h1>Goods</h1>
 
 @{
-    if ((string)ViewData["Role"] == "admin")
+    if (ViewData["Role"] is string s && s == "admin")
     {
         <form enctype="multipart/form-data" method="post" asp-action="Import">
             <div class="row">

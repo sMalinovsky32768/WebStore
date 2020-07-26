@@ -12,7 +12,7 @@ namespace Store.Controllers
 {
     public class AccountController : Controller
     {
-        private ApplicationContext _context;
+        private readonly ApplicationContext _context;
 
         public AccountController(ApplicationContext context)
         {
@@ -70,10 +70,10 @@ namespace Store.Controllers
         {
             if (ModelState.IsValid)
             {
-                var includes = _context.Users.Include(u => u.Role);
-                User user = includes.FirstOrDefault(u => u.Email == model.Email);
-                if (user != null && 
-                    (Security.GetDecryptedPassword(model.Email, model.Password, user.Password) == model.Password))
+                User user = _context.Users.Include(u => u.Role).FirstOrDefault(u => u.Email == model.Email);
+                if (user != null 
+                    && (Security.GetDecryptedPassword(model.Email,
+                    model.Password, user.Password) == model.Password))
                 {
                     await Authenticate(user);
 
